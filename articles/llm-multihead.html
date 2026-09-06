@@ -1,15 +1,52 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Multi-Head Attention From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 05 · MULTI-HEAD · 17 MIN READ</p><h1>Why one attention head is not enough.</h1><p class="dek">Multi-head attention lets the model learn several information-routing patterns in parallel, then recombine them into one representation.</p><div class="byline">Lio Learning Path · Intermediate</div><h2>Split the representation</h2><p>Suppose the model width is C = 256 and we use 8 heads. A common design gives each head a width of 32. Instead of asking one 256-dimensional attention mechanism to do everything, we create several smaller projections.</p><pre><code>head_size = n_embd // n_head
-# q, k, v per head: (B, T, head_size)</code></pre><p>Each head gets its own learned projections. Because the projections differ, heads can learn different useful comparisons.</p><h2>The implementation pattern</h2><pre><code>q = self.query(x).view(B, T, n_head, head_size).transpose(1, 2)
-k = self.key(x).view(B, T, n_head, head_size).transpose(1, 2)
-v = self.value(x).view(B, T, n_head, head_size).transpose(1, 2)
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Multi-Head Attention From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><div class="reading-progress"><span></span></div><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 05 · MULTI-HEAD · 21 MIN READ</p><h1>One attention head sees one learned view. Multi-head attention gives the model several.</h1><p class="dek">The trick is simple: project the same hidden states into several smaller spaces, run attention in parallel, concatenate the results, then mix them again.</p><div class="byline">Lio Learning Path · Intermediate</div><div class="article-intro"><strong>Learning goal</strong><p>Understand why heads are split, derive the tensor reshapes, implement multi-head causal attention, and learn how to use optimized attention without losing the underlying mental model.</p></div><h2>Why not one giant head?</h2><p>Imagine a model with width <code>C=256</code>. One attention mechanism could compare 256-dimensional queries and keys. It would have a lot of capacity, but it would have to express every useful routing pattern through one projection.</p><p>Instead, suppose we use eight heads of width 32. Each head sees a learned projection of the same input. The heads can discover different patterns because their parameters are different.</p><pre><code>C = 256
+n_head = 8
+head_size = C // n_head  # 32</code></pre><p>Do not turn this into a rigid story that head 1 “does syntax” and head 2 “does names.” Training does not assign jobs in advance. Multiple heads simply give the network multiple learned routing channels.</p><h2>Start from the shape</h2><p>Before attention, our hidden state is:</p><pre><code>x: (B, T, C)</code></pre><p>We project Q, K and V. If we then split the final dimension into heads, we get:</p><pre><code>(B, T, C)
+→ (B, T, H, D)
+→ (B, H, T, D)</code></pre><p>Here <code>H</code> is number of heads and <code>D=C/H</code> is the head width. The transpose puts the head dimension before sequence length so matrix multiplication can run independently for each head.</p><h2>Build the projections</h2><pre><code>q = self.query(x)
+k = self.key(x)
+v = self.value(x)
 
-scores = q @ k.transpose(-2, -1)
-scores = scores * head_size ** -0.5
+q = q.view(B, T, H, D).transpose(1, 2)
+k = k.view(B, T, H, D).transpose(1, 2)
+v = v.view(B, T, H, D).transpose(1, 2)</code></pre><p>Now:</p><pre><code>q, k, v: (B, H, T, D)</code></pre><h2>Attention happens per head</h2><pre><code>scores = q @ k.transpose(-2, -1)
+# (B,H,T,D) @ (B,H,D,T)
+# → (B,H,T,T)
+
+scores = scores * D ** -0.5
 scores = scores.masked_fill(mask == 0, float('-inf'))
 weights = F.softmax(scores, dim=-1)
 out = weights @ v
-out = out.transpose(1, 2).contiguous().view(B, T, C)
-return self.proj(out)</code></pre><h2>Read the shapes carefully</h2><p>Before splitting, <code>x</code> is <code>(B,T,C)</code>. After splitting and transposing, queries become <code>(B,H,T,D)</code>, where H is the number of heads and D is the per-head dimension. Matrix multiplication then produces <code>(B,H,T,T)</code> attention scores.</p><h2>Concatenate, then mix</h2><p>The outputs of all heads are concatenated back to width C. A final linear projection mixes information across heads:</p><pre><code>combined = head_outputs.reshape(B, T, C)
-out = self.proj(combined)</code></pre><p>That projection matters. Without it, each head would remain isolated after concatenation. The output matrix learns how to recombine the features.</p><h2>Why multiple heads can help</h2><p>A sequence contains many simultaneous relationships. One pattern might care about a nearby syntactic dependency. Another may track a repeated name. Another might behave more like local context. The model is not explicitly assigned these jobs; gradient descent discovers whatever routing patterns improve the objective.</p><div class="lesson"><strong>Important distinction</strong><p>Do not memorize the slogan “each head learns one linguistic feature” as a law. Head behavior is learned, distributed and often messy. Multi-head attention gives the network capacity for multiple routing patterns; it does not prescribe their interpretation.</p></div><h2>Dropout</h2><p>During training, attention weights or projection outputs may use dropout as a regularizer. At inference, dropout is disabled. For a tiny educational model, you can start with zero dropout to reduce moving parts, then add it as an experiment.</p><h2>Using PyTorch's fused attention</h2><p>For performance, PyTorch provides optimized scaled dot-product attention. The educational implementation above is valuable because it exposes the computation. Production training generally benefits from optimized kernels and memory-aware implementations.</p><pre><code>out = F.scaled_dot_product_attention(
-    q, k, v, is_causal=True
-)</code></pre><p>The abstraction is still implementing the same conceptual operation: scaled query-key matching, causal masking, softmax, and weighted value aggregation.</p><h2>Next</h2><p>Attention is only half of a Transformer block. After tokens exchange information, each position passes through a feed-forward network, with residual connections and normalization stabilizing the stack.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-transformer-block.html">Build the complete Transformer block</a></p></div></main></body></html>
+# (B,H,T,T) @ (B,H,T,D)
+# → (B,H,T,D)</code></pre><p>The important insight is that the computation is exactly the same attention equation from the previous lesson. We are simply running it H times in parallel.</p><h2>Put the heads back together</h2><p>After attention, transpose back and reshape:</p><pre><code>out = out.transpose(1, 2).contiguous()
+out = out.view(B, T, C)
+out = self.proj(out)</code></pre><p>The concatenation restores the original width. The final projection mixes information across heads and produces the block's attention update.</p><h2>A complete implementation</h2><pre><code>class MultiHeadAttention(nn.Module):
+    def __init__(self, n_embd, n_head, block_size, dropout=0.0):
+        super().__init__()
+        assert n_embd % n_head == 0
+        head_size = n_embd // n_head
+        self.n_head = n_head
+        self.head_size = head_size
+        self.query = nn.Linear(n_embd, n_embd, bias=False)
+        self.key = nn.Linear(n_embd, n_embd, bias=False)
+        self.value = nn.Linear(n_embd, n_embd, bias=False)
+        self.proj = nn.Linear(n_embd, n_embd)
+        self.dropout = nn.Dropout(dropout)
+        self.register_buffer("mask", torch.tril(torch.ones(block_size, block_size)))
+
+    def forward(self, x):
+        B, T, C = x.shape
+        q = self.query(x).view(B,T,self.n_head,self.head_size).transpose(1,2)
+        k = self.key(x).view(B,T,self.n_head,self.head_size).transpose(1,2)
+        v = self.value(x).view(B,T,self.n_head,self.head_size).transpose(1,2)
+        scores = q @ k.transpose(-2,-1) * self.head_size ** -0.5
+        scores = scores.masked_fill(self.mask[:T,:T] == 0, float('-inf'))
+        weights = F.softmax(scores, dim=-1)
+        weights = self.dropout(weights)
+        out = weights @ v
+        out = out.transpose(1,2).contiguous().view(B,T,C)
+        return self.proj(out)</code></pre><h2>Why the final projection matters</h2><p>Concatenation places each head's output next to the others. The projection learns how to combine those features. It is another trainable transformation, not just a formatting step.</p><h2>Dropout belongs to training</h2><p>Dropout randomly removes some activations during training to reduce overfitting. At evaluation time, dropout is disabled. For a tiny educational model, start with <code>dropout=0</code> so you can isolate the architecture, then introduce dropout as an experiment.</p><h2>Optimized attention</h2><p>Once the concept is understood, production code should not necessarily materialize every intermediate tensor. PyTorch exposes optimized scaled dot-product attention:</p><pre><code>out = F.scaled_dot_product_attention(
+    q, k, v,
+    attn_mask=None,
+    dropout_p=dropout if self.training else 0.0,
+    is_causal=True,
+)</code></pre><p>Optimized kernels can reduce memory movement and exploit hardware more efficiently. The abstraction does not invalidate the educational implementation; it packages the same mathematical operation more efficiently.</p><h2>What to measure</h2><p>Try the same tiny model with 1, 2, 4 and 8 heads while keeping total width constant. Compare validation loss and training speed. You are testing whether dividing capacity into more routing subspaces helps this particular model and dataset.</p><p>Also inspect the attention weights. Do not overinterpret individual heads, but use them to understand the mechanics.</p><div class="lesson"><strong>Shape checkpoint</strong><p>With <code>B=4,T=32,C=128,H=4</code>, each head has <code>D=32</code>. Q/K/V are <code>(4,4,32,32)</code> after splitting, attention scores are <code>(4,4,32,32)</code>, and the combined output returns to <code>(4,32,128)</code>.</p></div><div class="pullquote">Multi-head attention does not add a new kind of mathematics. It gives the same attention operation several learned spaces in which to work.</div><h2>Next: assemble the block</h2><p>Attention can move information around, but the model still needs a local transformation, a stable residual stream and normalization. That combination is the Transformer block.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-transformer-block.html">Build the complete Transformer block</a></p></div></main><script>const bar=document.querySelector('.reading-progress span');addEventListener('scroll',()=>{const h=document.documentElement;bar.style.width=(scrollY/(h.scrollHeight-innerHeight)*100)+'%'});</script></body></html>

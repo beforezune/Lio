@@ -20,13 +20,14 @@ Lio (Learn It Out) is an adaptive technology-learning publication and learning p
 ## Current stack
 - Static HTML/CSS/JavaScript MVP
 - HTML article files for the current seed library
+- Self-hosted educational SVG visuals in `assets/`
 - GitHub repository
 - GitHub Pages deployed from `main` / repository root through Settings
 - Browser localStorage for anonymous onboarding and reading progress
 - No backend, database, paid API, or secret key
 
 ## Deployment decision
-Use GitHub Pages **Deploy from a branch → `main` → `/ (root)`** for the MVP. The previous Actions deployment workflow is not required for this setup.
+Use GitHub Pages **Deploy from a branch → `main` → `/ (root)`** for the MVP. Do not add an Actions deployment workflow unless the deployment strategy changes.
 
 ## Visual direction
 The current redesign takes inspiration from the qualities the user liked in Claude/Anthropic's product presentation: calm, confident, spacious, premium, restrained, and typography-led. It is **not a visual copy**.
@@ -43,6 +44,7 @@ Design rules:
 - subtle interaction; no noisy gamification
 - homepage reads like a publication front page
 - article pages read like essays/books, not dashboards
+- flagship learning paths should feel like a visual course embedded inside the publication
 
 ## Article quality standard
 The old seed articles were too short and felt AI-written because they moved directly from definition → list of facts → summary. Future articles should be substantially more developed.
@@ -72,16 +74,33 @@ The writing should avoid repetitive AI patterns such as:
 - saying the same idea three different ways
 - polished but emotionally flat prose
 
-The reference is **Medium-style human readability and storytelling**, not copying Medium's visual UI or any particular author's voice. Technology writing should be clear, specific, grounded, and willing to show uncertainty. The Columbia Tow Center's technology-writing guidance is a useful reminder to avoid jargon and clichés.
+The reference is **Medium-style human readability and storytelling**, not copying Medium's visual UI or any particular author's voice. Technology writing should be clear, specific, grounded, and willing to show uncertainty.
 
 ## Current implementation
-- Homepage redesigned as an editorial publication front page.
-- Homepage now uses a large narrative feature, substantial story rows, topic exploration, and an editorial “why” section rather than many small cards.
-- Educational SVGs are self-hosted and explanatory.
-- Flagship Neural Networks article rewritten as a long-form human-first story.
-- LLM next-token article rewritten as a long-form human-first story.
-- Shared article CSS now supports readable serif body copy, pull quotes, diagrams, lesson boxes, and next-story navigation.
+- Homepage redesigned around a deep-learning publication rather than a card-heavy landing page.
+- Homepage has a large LLM visual, editorial manifesto, a featured 10-lesson LLM path, story rows, and onboarding.
+- Added self-hosted explanatory visuals: `assets/llm-pipeline.svg`, `assets/attention.svg`, and `assets/training-loop.svg`.
+- Added a complete 10-article **Build an LLM From Scratch** learning path:
+  1. `llm-from-scratch-roadmap.html`
+  2. `llm-tokenization.html`
+  3. `llm-embeddings.html`
+  4. `llm-self-attention.html`
+  5. `llm-multihead.html`
+  6. `llm-transformer-block.html`
+  7. `llm-training.html`
+  8. `llm-data-batching.html`
+  9. `llm-generation.html`
+  10. `llm-from-base-to-assistant.html`
+- The LLM path includes theory, equations, tensor shapes, PyTorch code, experiments, caveats, and links between lessons.
+- `content.json` now contains structured metadata and prerequisites for the LLM path.
+- Shared article CSS supports code blocks, readable serif body copy, pull quotes, diagrams, lesson boxes, and next-story navigation.
 - Onboarding/localStorage behavior remains compatible with the redesigned homepage.
+
+## LLM curriculum rule
+The LLM series is a flagship curriculum, not ten disconnected blog posts. The intended progression is:
+`text → tokens → embeddings → self-attention → multi-head attention → Transformer block → training → data/batching → generation → post-training/assistant`
+
+Every lesson should make the previous lesson necessary and the next lesson feel like a natural consequence. Code should use PyTorch for tensors/autograd/GPU execution while implementing the core model mechanics explicitly enough for a learner to inspect them.
 
 ## Learning model
 Reader profile eventually contains:
@@ -131,11 +150,11 @@ Do not optimize for a raw target such as 300 shallow blogs/month. The target is 
 
 ## Roadmap
 ### Now
-1. Finish the remaining seed articles to the new long-form standard.
-2. Add article quizzes and completion events.
-3. Build browser-side recommendation scoring from `content.json`, interests, read history, and prerequisites.
-4. Add topic/index pages and visible learning progress.
-5. Expand the knowledge graph and next-story links.
+1. Add article quizzes and completion events to the LLM path.
+2. Build browser-side recommendation scoring from `content.json`, interests, read history, and prerequisites.
+3. Add topic/index pages and visible learning progress.
+4. Expand the knowledge graph and next-story links.
+5. Continue replacing older short seed articles with the new long-form standard.
 
 ### Later, only when justified
 - Astro or another static-site generator when content volume makes it useful

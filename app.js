@@ -1,0 +1,7 @@
+const modal=document.getElementById('onboarding');const start=document.getElementById('startBtn');const close=document.getElementById('closeBtn');const save=document.getElementById('saveBtn');const choices=[...document.querySelectorAll('#choices button')];const KEY='lio-profile-v1';
+function openModal(){modal.classList.remove('hidden');modal.setAttribute('aria-hidden','false')}function closeModal(){modal.classList.add('hidden');modal.setAttribute('aria-hidden','true')}
+start?.addEventListener('click',openModal);close?.addEventListener('click',closeModal);modal?.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+choices.forEach(b=>b.addEventListener('click',()=>b.classList.toggle('selected')));
+save?.addEventListener('click',()=>{const interests=choices.filter(b=>b.classList.contains('selected')).map(b=>b.dataset.value);localStorage.setItem(KEY,JSON.stringify({version:1,interests,startedAt:new Date().toISOString(),read:[]}));closeModal();start.textContent='Your learning path is ready ✓';document.getElementById('learn')?.scrollIntoView({behavior:'smooth'});});
+if(localStorage.getItem(KEY)){start.textContent='Continue my learning path →'}
+[...document.querySelectorAll('.card a')].forEach(a=>a.addEventListener('click',()=>{const profile=JSON.parse(localStorage.getItem(KEY)||'{"version":1,"interests":[],"read":[]}');const id=a.getAttribute('href');if(id&&!profile.read.includes(id))profile.read.push(id);localStorage.setItem(KEY,JSON.stringify(profile));}));

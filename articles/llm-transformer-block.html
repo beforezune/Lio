@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Build a Transformer Block From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 06 · TRANSFORMER BLOCK · 20 MIN READ</p><h1>Now assemble the machine: attention + MLP + residuals + normalization.</h1><p class="dek">A GPT is not one giant mysterious operation. It is a stack of repeated blocks built from a small set of ordinary neural-network components.</p><div class="byline">Lio Learning Path · Intermediate</div><h2>The modern decoder block</h2><p>A common GPT-style pre-norm block can be written conceptually as:</p><pre><code>x = x + Attention(LayerNorm(x))
+x = x + MLP(LayerNorm(x))</code></pre><p>The exact ordering varies across model families, but this pattern is an excellent educational baseline.</p><h2>Layer normalization</h2><p>LayerNorm normalizes features within each token representation, then learns a scale and bias. It helps keep activations in a manageable range as many blocks are composed.</p><pre><code>self.ln1 = nn.LayerNorm(n_embd)
+self.ln2 = nn.LayerNorm(n_embd)</n
+x = x + self.attn(self.ln1(x))
+x = x + self.mlp(self.ln2(x))</code></pre><h2>The feed-forward network</h2><p>The MLP works independently on each position after attention has mixed information. A simple version expands the channel dimension, applies a nonlinearity, then projects back.</p><pre><code>self.mlp = nn.Sequential(
+    nn.Linear(n_embd, 4 * n_embd),
+    nn.GELU(),
+    nn.Linear(4 * n_embd, n_embd),
+    nn.Dropout(dropout),
+)</code></pre><p>Attention answers a routing question: “which information should this token read?” The MLP performs a learned transformation on the resulting representation. The two operations complement each other.</p><h2>Residual connections</h2><p>A residual connection adds the block's update to the existing representation instead of replacing it. This creates a direct path through the network and makes optimization of deep stacks much easier.</p><pre><code>x = x + update</code></pre><p>Think of each block as writing an additional correction into a shared stream of information. It does not need to rebuild the entire representation from zero.</p><h2>One complete block</h2><pre><code>class Block(nn.Module):
+    def __init__(self, n_embd, n_head, block_size, dropout=0.0):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.attn = MultiHeadAttention(n_embd, n_head, block_size, dropout)
+        self.ln2 = nn.LayerNorm(n_embd)
+        self.mlp = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.GELU(),
+            nn.Linear(4 * n_embd, n_embd),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        x = x + self.attn(self.ln1(x))
+        x = x + self.mlp(self.ln2(x))
+        return x</code></pre><h2>Stack the blocks</h2><pre><code>self.blocks = nn.ModuleList([
+    Block(n_embd, n_head, block_size, dropout)
+    for _ in range(n_layer)
+])
+
+for block in self.blocks:
+    x = block(x)</code></pre><p>Depth now becomes a simple hyperparameter. More blocks give the network more transformation capacity, but also increase memory and compute requirements.</p><div class="lesson"><strong>Shape checkpoint</strong><p>Every block should preserve the main shape: <code>(B,T,C) → (B,T,C)</code>. If your attention or MLP changes C accidentally, the residual addition will expose the bug.</p></div><h2>Final normalization and the language-model head</h2><pre><code>x = self.ln_f(x)
+logits = self.lm_head(x)</code></pre><p>If vocabulary size is V, logits have shape <code>(B,T,V)</code>. For each position, the model produces one score for every possible next token.</p><div class="pullquote">The Transformer stack repeatedly refines a sequence representation. Attention mixes information; the MLP transforms it; residuals preserve a stable information highway.</div><h2>Next</h2><p>We have a model. Now it needs to learn. The next lesson follows one batch through forward pass, loss, gradients and an optimizer update.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-training.html">Train the language model: loss, backpropagation and AdamW</a></p></div></main></body></html>

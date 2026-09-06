@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Train a Tiny GPT From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 07 · TRAINING · 22 MIN READ</p><h1>Training an LLM is a giant loop of tiny corrections.</h1><p class="dek">The model predicts. A loss measures the error. Backpropagation computes gradients. An optimizer changes the parameters. Repeat.</p><div class="byline">Lio Learning Path · Intermediate</div><div class="lead-visual"><img src="../assets/training-loop.svg" alt="Training loop showing batch, forward pass, loss and backpropagation"></div><h2>The objective</h2><p>For a causal language model, each position predicts the next token. Given target token y, the model produces a distribution p(y|context). Cross-entropy loss penalizes the probability assigned to the correct target.</p><pre><code>loss = F.cross_entropy(
+    logits.view(B * T, V),
+    targets.view(B * T)
+)</code></pre><p>Flattening combines batch and time positions so PyTorch sees a conventional classification problem with V classes.</p><h2>Forward pass</h2><pre><code>logits = model(x)
+loss = F.cross_entropy(
+    logits.reshape(-1, vocab_size),
+    y.reshape(-1)
+)</code></pre><p>At this moment the model has produced predictions but has not learned from them yet.</p><h2>Backpropagation</h2><pre><code>optimizer.zero_grad(set_to_none=True)
+loss.backward()
+optimizer.step()</code></pre><p><code>loss.backward()</code> applies the chain rule through the entire computation graph. Every parameter receives a gradient describing how a small change would affect the loss.</p><h2>AdamW</h2><p>Adam-family optimizers maintain running estimates of gradient statistics to adapt the size of parameter updates. AdamW separates weight decay from the adaptive gradient update, which makes its regularization behavior easier to reason about.</p><pre><code>optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=3e-4,
+    weight_decay=0.1
+)</code></pre><p>The exact learning rate is not universal. Tiny models, datasets and hardware need different settings. Treat hyperparameters as experimental variables, not sacred constants.</p><h2>A minimal training loop</h2><pre><code>for step in range(max_steps):
+    xb, yb = get_batch("train")
+
+    logits = model(xb)
+    loss = F.cross_entropy(
+        logits.view(-1, vocab_size),
+        yb.view(-1)
+    )
+
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+
+    if step % 100 == 0:
+        print(step, loss.item())</code></pre><h2>Train and validation loss</h2><p>Never look only at training loss. Hold out a validation split. If training loss continues falling while validation loss stops improving or rises, the model is fitting the training data without improving generalization.</p><pre><code>@torch.no_grad()
+def estimate_loss():
+    model.eval()
+    # sample several batches from train and val
+    # average their losses
+    model.train()</code></pre><h2>Perplexity</h2><p>Language-model quality is often summarized with perplexity, which is related to the exponent of average negative log-likelihood. Lower is better under the same tokenization and evaluation setup. It is useful, but it is not a complete measure of usefulness or reasoning ability.</p><h2>Learning-rate schedules</h2><p>It can be useful to warm up the learning rate and then decay it. A simple educational experiment is to compare constant learning rate with cosine decay. The important lesson is not the schedule itself; it is learning to inspect how optimization dynamics change.</p><div class="lesson"><strong>Learning checkpoint</strong><p>Explain the chain: logits → cross-entropy → scalar loss → gradients → optimizer update. If you can trace one parameter through that loop, the training process is no longer a black box.</p></div><h2>Gradient clipping</h2><p>Some training runs produce unusually large gradients. Clipping limits their norm:</p><pre><code>torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)</code></pre><p>This is a safety valve, not a substitute for diagnosing an unstable configuration.</p><div class="pullquote">Training is not the model discovering a database. It is optimization changing parameters so correct continuations become more probable.</div><h2>Next</h2><p>A good optimizer cannot rescue bad batches. The next lesson builds the dataset pipeline and explains context windows, batching and memory.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-data-batching.html">Data, batching and context windows</a></p></div></main></body></html>

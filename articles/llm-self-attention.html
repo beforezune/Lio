@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Self-Attention From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 04 · SELF-ATTENTION · 20 MIN READ</p><h1>Self-attention is a learned routing system.</h1><p class="dek">Instead of carrying one fixed summary of a sentence, each token can ask: which earlier tokens should I read, and how strongly?</p><div class="byline">Lio Learning Path · Intermediate</div><div class="lead-visual"><img src="../assets/attention.svg" alt="Causal attention matrix showing each token reading earlier tokens"></div><h2>The formula</h2><p>Scaled dot-product attention is commonly written:</p><pre><code>Attention(Q, K, V) = softmax(QKᵀ / √dₖ) V</code></pre><p>Q means queries, K means keys, and V means values. A query represents what a token is looking for. A key represents what a token offers for matching. A value is the information that actually gets mixed into the output.</p><h2>Start with one head</h2><p>Let <code>x</code> have shape <code>(B, T, C)</code>. We project it three ways:</p><pre><code>q = Wq(x)
+k = Wk(x)
+v = Wv(x)</code></pre><p>For each pair of positions, take a dot product between a query and a key. Large values mean strong compatibility. Divide by the square root of the head dimension to keep logits from growing too large as the dimension increases.</p><pre><code>scores = q @ k.transpose(-2, -1)
+scores = scores / math.sqrt(head_dim)</code></pre><h2>The causal mask</h2><p>A language model must not see the answer while predicting it. Position 5 can use positions 0–5, but not positions 6 onward. A lower-triangular mask enforces this.</p><pre><code>mask = torch.tril(torch.ones(T, T, device=x.device))
+scores = scores.masked_fill(mask == 0, float('-inf'))</code></pre><p>After softmax, masked entries become zero probability.</p><pre><code>weights = F.softmax(scores, dim=-1)
+out = weights @ v</code></pre><h2>Why softmax?</h2><p>Softmax converts arbitrary compatibility scores into non-negative weights that sum to one across the keys. The output is therefore a weighted mixture of value vectors. It is useful to think of this as differentiable information routing.</p><h2>A complete PyTorch head</h2><pre><code>class Head(nn.Module):
+    def __init__(self, n_embd, head_size, block_size):
+        super().__init__()
+        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+        self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+
+    def forward(self, x):
+        B, T, C = x.shape
+        k = self.key(x)
+        q = self.query(x)
+        weights = q @ k.transpose(-2, -1) * C ** -0.5
+        weights = weights.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
+        weights = F.softmax(weights, dim=-1)
+        v = self.value(x)
+        return weights @ v</code></pre><h2>What attention is not</h2><p>Attention is not a little database lookup and the weights are not guaranteed to be human-readable explanations. They are learned computational routing coefficients. Some heads can develop patterns that correlate with syntax or copying, but interpreting attention requires care.</p><div class="lesson"><strong>Shape checkpoint</strong><p>If <code>x</code> is <code>(B,T,C)</code> and a head has size H, then q, k and v are <code>(B,T,H)</code>. The score matrix is <code>(B,T,T)</code>: every query position scores every key position.</p></div><h2>Why the quadratic cost matters</h2><p>The T-by-T attention matrix grows quadratically with sequence length. Doubling context length can require roughly four times as many pairwise scores. This is one reason long-context efficiency is an active engineering problem.</p><div class="pullquote">Attention does not memorize a sentence in one vector. It lets every position build its next representation by selectively mixing information from other positions.</div><h2>Next</h2><p>One head can learn one routing pattern. Modern Transformers use many heads in parallel, then combine their outputs.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-multihead.html">Multi-head attention: many learned views at once</a></p></div></main></body></html>

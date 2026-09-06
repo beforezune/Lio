@@ -1,7 +1,7 @@
 # Lio Project Memory
 
 ## Product
-Lio (Learn It Out) is an adaptive technology-learning platform. It should feel closer to a calm, useful Medium-style publication plus a personalized learning path than a conventional course platform.
+Lio (Learn It Out) is an adaptive technology-learning platform. It should feel closer to a calm, useful publication plus a personalized learning path than a conventional course platform.
 
 **Core promise:** turn difficult and changing technology into understandable, practical learning experiences, then recommend what a reader should learn next.
 
@@ -17,19 +17,31 @@ Lio (Learn It Out) is an adaptive technology-learning platform. It should feel c
 
 ## Current stack
 - Static HTML/CSS/JavaScript MVP
-- Markdown article files
+- HTML article files for the current seed library
 - GitHub repository
-- GitHub Pages
-- GitHub Actions for deployment
-- Browser localStorage for anonymous onboarding/progress
+- GitHub Pages deployed from `main` / repository root through Settings
+- Browser localStorage for anonymous onboarding and reading progress
+- No backend, database, paid API, or secret key
 
-## Later stack, only when justified
-- Astro or another static-site generator when content volume makes it useful
-- Cloudflare Worker + D1 for accounts, synchronized progress, server recommendations, or other dynamic features
-- Research agents/APIs for automation
+## Deployment decision
+Use GitHub Pages **Deploy from a branch → `main` → `/ (root)`** for the MVP. The previous `.github/workflows/pages.yml` was removed because Actions deployment is unnecessary for this setup and had caused a Pages configuration failure.
 
-## UX direction
-Simple, cool, clean, fast, slightly playful. Strong typography, generous whitespace, topic chips, short cards, progress indicators, diagrams, and small interactive moments. Avoid noisy dashboards and aggressive gamification.
+## Current UX direction
+The homepage is now editorial and typography-first rather than a card-heavy startup dashboard:
+- warm off-white canvas
+- near-black type
+- restrained lime accent
+- generous whitespace
+- strong headlines
+- minimal navigation
+- educational SVG diagrams instead of random stock imagery
+- one featured learning experience
+- linear article feed
+- topic exploration
+- calm onboarding
+- subtle motion, no aggressive gamification
+
+The visual goal is **inspired by the calm, premium qualities of modern editorial/AI products, not a copy of any specific site**.
 
 ## Learning model
 Reader profile eventually contains:
@@ -43,6 +55,9 @@ Reader profile eventually contains:
 - difficulty tolerance
 
 Recommendation candidates are scored using relevance, knowledge gap, prerequisite readiness, learning value, practical value, freshness, difficulty fit, novelty, and diversity.
+
+Core loop:
+`onboarding → personalized feed → article → quiz/practice → knowledge estimate → next useful concept`
 
 ## Content types
 - Explainer
@@ -71,8 +86,24 @@ Each article should ideally define:
 - related / next articles
 - sources when claims depend on external research
 
-## Content production
-The target may eventually be high volume (for example, hundreds of pieces per month), but quality and curriculum structure matter more than a raw article count. Batch creation can be requested manually in ChatGPT and committed to GitHub.
+## Content quality rule
+Do not optimize for a raw target such as 300 shallow blogs/month. The target is hundreds of useful **learning experiences** when the curriculum can support them. Articles should be substantial enough to teach, include useful visuals/examples where appropriate, and connect to prerequisites and next concepts.
+
+## Roadmap
+### Now
+1. Finish the editorial homepage and navigation.
+2. Make flagship articles substantially deeper.
+3. Add article quizzes and completion events.
+4. Build browser-side recommendation scoring from `content.json`, interests, read history, and prerequisites.
+5. Add topic/index pages and visible learning progress.
+
+### Later, only when justified
+- Astro or another static-site generator when content volume makes it useful
+- Cloudflare Worker + D1 for accounts, synchronized progress, server recommendations, or other dynamic features
+- Research agents/APIs for automation
+
+## Safety / engineering rule
+Never reset, force-push, or replace the main branch wholesale to make a website change. Prefer small, file-level commits and verify the current file SHA before every update/delete. Never put API keys or secrets in frontend files. The MVP should remain safe to publish as a public GitHub repository.
 
 ## Memory rule
 If a future conversation lacks context, read this file first. Update this file when a major architectural/product decision changes.

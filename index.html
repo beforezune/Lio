@@ -3,55 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Lio — Learn It Out. Technology explained so you can actually understand it.">
+  <meta name="description" content="Lio — Learn It Out. Understand technology from first principles, then learn what to explore next.">
   <title>Lio — Learn It Out</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="nav wrap">
     <a class="brand" href="index.html"><span class="logo">L</span><span>Lio</span></a>
-    <nav><a href="#learn">Learn</a><a href="#topics">Topics</a><a href="#about">About</a></nav>
+    <nav><a href="#learn">Learn</a><a href="#topics">Topics</a><a href="#about">Why Lio</a></nav>
+    <button class="nav-cta" id="startBtn">Start learning <span>↗</span></button>
   </header>
 
   <main>
     <section class="hero wrap">
-      <div class="eyebrow">LEARN IT OUT</div>
-      <h1>Technology is easier<br><em>when it clicks.</em></h1>
-      <p class="hero-copy">Clear ideas. Real examples. New technology without the “you should already know this” feeling.</p>
-      <div class="hero-actions">
-        <button class="primary" id="startBtn">Build my learning path <span>→</span></button>
-        <a class="quiet" href="articles/neural-networks.html">Just explore</a>
+      <div class="hero-copy">
+        <p class="eyebrow">LEARN IT OUT · TECHNOLOGY, EXPLAINED</p>
+        <h1>Hard technology.<br><em>Made understandable.</em></h1>
+        <p class="lede">Lio turns complex ideas, new research, and practical problems into clear learning experiences — starting simple and going as deep as you want.</p>
+        <div class="hero-actions">
+          <button class="primary" id="heroStart">Build my learning path <span>→</span></button>
+          <a class="text-link" href="articles/neural-networks.html">Explore the library <span>↓</span></a>
+        </div>
+        <div class="micro-proof"><span class="dot"></span> Beginner-first · Progressive depth · No paywall</div>
       </div>
-      <div class="signal"><span></span> Built for curious beginners — and people who want to go deeper.</div>
+      <div class="hero-visual" aria-label="A simple illustration of connected learning concepts">
+        <div class="visual-label">ONE IDEA → MANY CONNECTIONS</div>
+        <svg viewBox="0 0 520 420" role="img" aria-label="Learning graph connecting algorithms, neural networks, attention and language models">
+          <path d="M120 210 C190 110 225 110 275 185 S365 285 420 185" class="graph-line"/>
+          <path d="M120 210 C180 300 225 300 275 235 S365 130 420 185" class="graph-line"/>
+          <circle cx="120" cy="210" r="58" class="node main-node"/><text x="120" y="205" text-anchor="middle">ALGORITHMS</text><text x="120" y="224" text-anchor="middle" class="small">the basic idea</text>
+          <circle cx="275" cy="210" r="58" class="node"/><text x="275" y="205" text-anchor="middle">NEURAL</text><text x="275" y="224" text-anchor="middle" class="small">networks</text>
+          <circle cx="420" cy="185" r="58" class="node"/><text x="420" y="180" text-anchor="middle">ATTENTION</text><text x="420" y="199" text-anchor="middle" class="small">the routing idea</text>
+          <circle cx="420" cy="185" r="8" class="pulse"/>
+        </svg>
+      </div>
     </section>
 
-    <section class="path wrap" id="learn">
-      <div class="section-head"><div><span class="kicker">A DIFFERENT KIND OF FEED</span><h2>Don't just read. <span>connect.</span></h2></div><p>Lio remembers what you care about in this browser and uses it to suggest a useful next step.</p></div>
-      <div class="cards">
-        <article class="card featured"><div class="card-top"><span class="tag">START HERE</span><span>7 min</span></div><h3>Neural Networks, Without the Mystery</h3><p>What a neural network actually does, explained from zero — then gradually taken apart.</p><a href="articles/neural-networks.html">Read the idea →</a></article>
-        <article class="card"><div class="card-top"><span class="tag">CONCEPT</span><span>6 min</span></div><h3>What Is an Algorithm?</h3><p>The surprisingly simple idea behind search, recommendations, maps, and AI.</p><a href="articles/algorithms.html">Learn it →</a></article>
-        <article class="card"><div class="card-top"><span class="tag">AI</span><span>8 min</span></div><h3>Why ChatGPT Can Predict Words</h3><p>A friendly path from next-word prediction to language models.</p><a href="articles/llm-next-word.html">Learn it →</a></article>
+    <section class="continue wrap" id="learn">
+      <div class="section-title"><p class="eyebrow">A BETTER START</p><h2>Don't know where to begin?</h2><p>Start with an idea you have probably heard a hundred times. We will build the missing pieces underneath it.</p></div>
+      <article class="feature-story">
+        <div class="story-art"><svg viewBox="0 0 500 330" aria-label="Diagram showing inputs flowing through a neural network to a prediction"><path d="M100 80 L250 165 L100 250 M250 165 L400 110 M250 165 L400 220"/><circle cx="100" cy="80" r="22"/><circle cx="100" cy="165" r="22"/><circle cx="100" cy="250" r="22"/><circle cx="250" cy="165" r="30"/><circle cx="400" cy="110" r="24"/><circle cx="400" cy="220" r="24"/><text x="250" y="171" text-anchor="middle">?</text></svg></div>
+        <div class="story-body"><div class="meta"><span>EXPLAINER</span><span>7 MIN</span></div><h3>Neural Networks,<br><em>Without the Mystery</em></h3><p>What a neural network actually does, from inputs to prediction — then the small pieces that make training possible.</p><a href="articles/neural-networks.html" class="story-link">Start with the intuition →</a></div>
+      </article>
+    </section>
+
+    <section class="feed wrap">
+      <div class="section-title row"><div><p class="eyebrow">KEEP GOING</p><h2>Useful next ideas.</h2></div><p>Your path will eventually adapt to what you read, what you know, and what you want to build.</p></div>
+      <div class="feed-list">
+        <a class="feed-item" href="articles/algorithms.html"><span class="index">01</span><span class="feed-main"><small>CONCEPT · 6 MIN</small><strong>What Is an Algorithm?</strong><span>The simple idea behind search, maps, recommendations, and AI.</span></span><span class="arrow">↗</span></a>
+        <a class="feed-item" href="articles/llm-next-word.html"><span class="index">02</span><span class="feed-main"><small>AI · 8 MIN</small><strong>Why ChatGPT Can Predict Words</strong><span>From next-token prediction to the surprising machinery underneath.</span></span><span class="arrow">↗</span></a>
+        <a class="feed-item" href="articles/attention.html"><span class="index">03</span><span class="feed-main"><small>ML · 10 MIN</small><strong>Attention, Explained</strong><span>How models decide which pieces of information deserve focus.</span></span><span class="arrow">↗</span></a>
       </div>
     </section>
 
     <section class="topics wrap" id="topics">
-      <div class="section-head"><div><span class="kicker">EXPLORE</span><h2>Pick a rabbit hole.</h2></div></div>
-      <div class="topic-grid">
-        <button data-topic="ai">Artificial Intelligence <b>→</b></button>
-        <button data-topic="programming">Programming <b>→</b></button>
-        <button data-topic="ml">Machine Learning <b>→</b></button>
-        <button data-topic="quantum">Quantum Computing <b>→</b></button>
-        <button data-topic="cybersecurity">Cybersecurity <b>→</b></button>
-        <button data-topic="future">What’s next? <b>→</b></button>
-      </div>
+      <div class="section-title"><p class="eyebrow">EXPLORE</p><h2>Follow your curiosity.</h2></div>
+      <div class="topic-grid"><button data-topic="ai">Artificial Intelligence <b>↗</b></button><button data-topic="programming">Programming <b>↗</b></button><button data-topic="ml">Machine Learning <b>↗</b></button><button data-topic="quantum">Quantum Computing <b>↗</b></button><button data-topic="cybersecurity">Cybersecurity <b>↗</b></button><button data-topic="future">Emerging Technology <b>↗</b></button></div>
     </section>
 
-    <section class="about wrap" id="about">
-      <div class="about-box"><span class="kicker">THE LIO IDEA</span><h2>Less “content”.<br>More <em>understanding.</em></h2><p>A huge library is only useful if you can find the right thing at the right time. Lio is being built around that idea: learn something, test it, connect it to what you already know, then discover the next useful concept.</p></div>
-    </section>
+    <section class="about wrap" id="about"><div class="about-inner"><p class="eyebrow">THE LIO IDEA</p><h2>Less content.<br><em>More understanding.</em></h2><p>A library is not a learning system. Lio connects ideas, prerequisites, practice, and progress so the next thing you read can actually make the previous thing more useful.</p><div class="principles"><span>01 · Understand</span><span>02 · Test</span><span>03 · Connect</span><span>04 · Go deeper</span></div></div></section>
   </main>
 
-  <div class="modal hidden" id="onboarding" aria-hidden="true"><div class="modal-card"><button class="close" id="closeBtn">×</button><span class="kicker">QUICK START</span><h2>What do you want to learn?</h2><p>Pick a few. You can change these later.</p><div class="choices" id="choices"><button data-value="ai">AI</button><button data-value="ml">Machine Learning</button><button data-value="programming">Programming</button><button data-value="robotics">Robotics</button><button data-value="cybersecurity">Cybersecurity</button><button data-value="quantum">Quantum</button></div><button class="primary full" id="saveBtn">Create my path →</button></div></div>
+  <div class="modal hidden" id="onboarding" aria-hidden="true"><div class="modal-card"><button class="close" id="closeBtn" aria-label="Close">×</button><p class="eyebrow">QUICK START</p><h2>What are you curious about?</h2><p>Choose a few topics. Lio saves this locally in your browser and uses them to shape your starting path.</p><div class="choices" id="choices"><button data-value="ai">AI</button><button data-value="ml">Machine Learning</button><button data-value="programming">Programming</button><button data-value="robotics">Robotics</button><button data-value="cybersecurity">Cybersecurity</button><button data-value="quantum">Quantum</button></div><button class="primary full" id="saveBtn">Create my path →</button></div></div>
 
   <footer class="wrap footer"><span>© 2026 Lio — Learn It Out</span><span>Built to make hard things click.</span></footer>
   <script src="app.js"></script>

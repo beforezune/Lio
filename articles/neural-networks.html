@@ -1,1 +1,77 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Neural Networks, Without the Mystery — Lio</title><link rel="stylesheet" href="../styles.css"></head><body><header class="nav wrap"><a class="brand" href="../index.html"><span class="logo">L</span><span>Lio</span></a><nav><a href="../index.html#learn">Learn</a><a href="../index.html#topics">Topics</a></nav></header><main class="wrap" style="max-width:820px"><article class="article" style="padding:80px 0"><span class="kicker">EXPLAINER · BEGINNER · 7 MIN</span><h1 style="font-size:clamp(44px,7vw,76px);margin-top:18px">Neural Networks, Without the Mystery</h1><p class="hero-copy">A neural network is a machine that learns a useful relationship between inputs and outputs by adjusting numbers inside itself.</p><hr><h2>Start with a simple problem</h2><p>Imagine showing a computer thousands of pictures and asking whether each picture contains a cat. You do not hand-write every rule. Instead, you give the system examples and let it adjust itself until its answers become better.</p><h2>So what is inside?</h2><p>Think of a network as layers of tiny calculators. Each calculator takes numbers, gives more numbers to the next layer, and has adjustable <strong>weights</strong>. The weights control how strongly one signal influences another.</p><div class="card" style="margin:30px 0;background:#fff"><h3>Input → layers → prediction</h3><p>Pixels become numbers → layers transform those numbers → the final layer produces a prediction such as “cat: 0.94”.</p></div><h2>How does it learn?</h2><p>First it makes a prediction. Then we compare that prediction with the correct answer using a <strong>loss function</strong>. Training adjusts the weights to reduce the loss. Repeating this over many examples is the basic learning loop.</p><h2>The surprising part</h2><p>No single weight usually “means cat”. The useful representation is distributed across many learned numbers. That is why neural networks can discover patterns that are difficult to describe as hand-written rules.</p><h2>You can now</h2><ul><li>Explain what a neural network is.</li><li>Explain why weights are adjustable.</li><li>Describe prediction → loss → weight update as the learning loop.</li></ul><div class="about-box" style="margin-top:40px"><span class="kicker">NEXT</span><h2>Ready for the mechanism?</h2><p>Learn why changing a weight in the right direction can make a prediction better.</p><a style="color:white" href="algorithms.html">Next: What Is an Algorithm? →</a></div></article></main><footer class="wrap footer"><span>Lio — Learn It Out</span><span>Learn something. Connect it. Build on it.</span></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A human-first explanation of what neural networks actually do and why the training loop works."><title>Neural Networks Are Not Mysterious — Lio</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+<header class="site-header"><div class="nav wrap"><a class="brand" href="../index.html"><span class="brand-mark">L</span><span>Lio</span></a><nav><a href="../index.html#stories">Stories</a><a href="../index.html#topics">Topics</a><a href="../index.html#about">About</a></nav><a class="nav-cta" href="../index.html">Back to Lio <span>→</span></a></div></header>
+<main class="wrap"><article class="article">
+<span class="kicker">FEATURE · BEGINNER · 10 MIN READ</span>
+<h1>Neural networks are not mysterious. They are <em>very good at adjusting.</em></h1>
+<p class="dek">The phrase sounds intimidating. The core idea is not. A neural network makes a guess, measures how wrong it was, changes itself a little, and tries again.</p>
+<div class="byline">LIO · LEARN IT OUT &nbsp; / &nbsp; START WITH THE IDEA, THEN FOLLOW THE MECHANISM</div>
+
+<div class="lead-visual"><svg viewBox="0 0 760 300" role="img" aria-label="A neural network learning loop"><g fill="none" stroke="#aaa69d" stroke-width="2"><path d="M95 80 C210 40 235 115 350 120 S540 70 665 95"/><path d="M95 150 C210 145 245 150 350 150 S540 145 665 150"/><path d="M95 220 C210 260 245 185 350 180 S540 230 665 205"/></g><g fill="#fbfaf7" stroke="#1d1d1a" stroke-width="2"><circle cx="95" cy="80" r="24"/><circle cx="95" cy="150" r="24"/><circle cx="95" cy="220" r="24"/><circle cx="350" cy="120" r="32"/><circle cx="350" cy="180" r="32"/><circle cx="665" cy="95" r="30"/><circle cx="665" cy="150" r="30"/><circle cx="665" cy="205" r="30"/></g><circle cx="350" cy="120" r="32" fill="#c9ef63" stroke="#1d1d1a" stroke-width="2"/><text x="95" y="270" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#706f68">INPUTS</text><text x="350" y="270" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#706f68">ADJUSTABLE NUMBERS</text><text x="665" y="270" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#706f68">PREDICTION</text></svg></div>
+
+<p>There is a moment when neural networks stop looking like magic.</p>
+<p>It usually happens when you stop staring at the architecture diagram.</p>
+<p>“Input layer. Hidden layer. Activation function. Backpropagation.”</p>
+<p>Those words are useful eventually. But if they are your starting point, it is easy to learn the vocabulary without ever building a mental model of what the machine is doing.</p>
+<p>So let's start somewhere more ordinary: <strong>a machine that keeps getting its guesses wrong.</strong></p>
+
+<h2>Imagine teaching a machine to spot a cat</h2>
+<p>You have 100,000 photos. Some contain cats. Some contain dogs, chairs, people, trees, and things that are difficult to identify even for a human.</p>
+<p>You could try to write rules:</p>
+<ul><li>If there are two pointy ears, maybe it is a cat.</li><li>If the eyes are roughly here, maybe it is a cat.</li><li>If the fur has this texture, increase the score.</li></ul>
+<p>But the real world immediately ruins your plan. Cats turn around. They hide behind furniture. They sit in terrible lighting. Some have long hair. Some have almost none.</p>
+<p>The useful question is therefore not “What rules describe a cat?”</p>
+<p>It is: <strong>Can the machine discover useful patterns from examples?</strong></p>
+
+<div class="pullquote">A neural network is a system with enough adjustable parts that it can learn a complicated relationship without us writing every rule by hand.</div>
+
+<h2>The network starts out knowing almost nothing</h2>
+<p>At the beginning, the network is not secretly intelligent. Its internal numbers — its <strong>weights</strong> — start with values that have little useful meaning.</p>
+<p>Give it a photograph and those numbers transform the input step by step. The final output might be something like:</p>
+<p><strong>cat: 0.31 &nbsp; · &nbsp; dog: 0.54 &nbsp; · &nbsp; other: 0.15</strong></p>
+<p>It guessed dog.</p>
+<p>Suppose the correct answer was cat. That mistake is valuable because now we have a direction for learning.</p>
+
+<h2>Learning is a loop, not a revelation</h2>
+<p>This is the part worth remembering.</p>
+<p>The network does not suddenly understand cats. It repeats a small loop over and over:</p>
+<div class="lesson"><strong>1. Predict</strong><p>Use the current weights to make an answer.</p><strong>2. Measure the error</strong><p>A loss function turns “how wrong was that?” into a number.</p><strong>3. Adjust</strong><p>Change the weights in directions that should reduce the error.</p><strong>4. Repeat</strong><p>Do it again on another example — thousands or millions of times.</p></div>
+<p>That is the engine underneath training.</p>
+<p>The famous technical terms — gradients, backpropagation, optimization — describe how we make the <strong>adjust</strong> step efficient. They are important. But they are not the story itself.</p>
+
+<h2>So what is a “neuron” actually doing?</h2>
+<p>A simplified neuron is just a small calculation.</p>
+<p>It receives numbers, gives different inputs different weights, combines them, and passes the result through a function that changes the signal before sending it onward.</p>
+<p>One neuron is not impressive. A large network contains many such calculations arranged so that later parts can build on patterns found earlier.</p>
+<p>For an image, early layers may learn useful local patterns such as edges. Later layers can combine those patterns into more complicated shapes. Deeper representations can become useful for recognizing objects.</p>
+<p>The important word is <em>useful</em>. We did not necessarily tell the network what an edge or whisker should look like. Training selected internal representations that helped reduce prediction error.</p>
+
+<h2>Why doesn't one weight mean “cat”?</h2>
+<p>This is one of the most useful misconceptions to remove.</p>
+<p>You might imagine that a neural network eventually contains a hidden switch labelled <em>CAT</em>.</p>
+<p>Usually it doesn't work that way.</p>
+<p>Information is distributed across many parameters. A useful pattern can depend on a large collection of small contributions interacting with one another.</p>
+<p>That is one reason neural networks can be powerful — and one reason they can be difficult to interpret.</p>
+
+<h2>Where the technical machinery enters</h2>
+<p>If you want to go deeper, the next layer of the story is mathematics.</p>
+<p>The loss function gives us a surface describing how good or bad the current parameters are. A gradient tells us which direction changes the loss most quickly. An optimizer uses that information to update the weights.</p>
+<p>Backpropagation is the efficient bookkeeping system that calculates how much each parameter contributed to the final error, working backward through the computation.</p>
+<p>None of this changes the mental model. It makes the mental model precise.</p>
+
+<h2>And this is why “AI learns” is a dangerous shortcut</h2>
+<p>The network does learn patterns from data, but it does not learn in the human sense.</p>
+<p>It does not wake up and decide what matters. It does not automatically know when its training examples are biased. It does not understand a prediction simply because the prediction is accurate.</p>
+<p>Its behavior is shaped by the data, objective, architecture, optimization process, and the environment in which it is used.</p>
+<p>That distinction becomes especially important when we move from image classifiers to language models, where the patterns are much larger and the outputs can feel remarkably human.</p>
+
+<h2>You now have the useful version of the idea</h2>
+<ul><li>A neural network is a layered computation with adjustable parameters.</li><li>Weights control how strongly signals influence later computations.</li><li>The network learns through repeated prediction, error measurement, and adjustment.</li><li>Backpropagation and optimization make that adjustment practical at scale.</li><li>Complex behavior can emerge from many small parameter interactions rather than one hidden rule.</li></ul>
+
+<div class="next lesson"><span class="kicker">NEXT STORY</span><h3>Why can a machine predict the next word?</h3><p>Once you understand learning as repeated adjustment, language models become much less mysterious too.</p><a href="llm-next-word.html">Continue to next word prediction →</a></div>
+</article></main>
+<footer class="footer wrap"><span>Lio — Learn It Out</span><span>Technology, explained by humans.</span></footer>
+<script src="../app.js"></script>
+</body></html>

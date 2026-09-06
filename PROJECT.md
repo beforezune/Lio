@@ -61,6 +61,10 @@ A strong Lio article should normally have:
 9. A concise “what you should remember” section.
 10. A meaningful next story connected to the knowledge graph.
 
+**Storytelling default:** use fictional names/scenarios when they make an abstract technical idea easier to follow (for example, “Priya needs to find a name in a huge list”). Make it obvious when a scenario is illustrative. Do not invent a fictional anecdote and present it as a real event. For real research, companies, experiments, incidents, or historical events, use the real entities and cite the relevant sources.
+
+The default narrative rhythm should feel like a strong Medium/InfoSec-style technical write-up: hook → situation/problem → curiosity → beginner explanation → concrete steps or mechanism → deeper technical explanation → caveat → practical takeaway → natural next story. This is a **storytelling structure reference, not a copying instruction**. Do not copy wording, distinctive phrases, or an author's personal voice from another publication.
+
 Target article size is generally **1,200–2,500 words for a substantial explainer**, with shorter pieces allowed when the idea genuinely needs less. A 300-word article is not automatically bad, but a flagship concept should not feel compressed merely to increase publishing volume.
 
 The writing should avoid repetitive AI patterns such as:
@@ -92,9 +96,10 @@ The reference is **Medium-style human readability and storytelling**, not copyin
   9. `llm-generation.html`
   10. `llm-from-base-to-assistant.html`
 - The LLM path includes theory, equations, tensor shapes, PyTorch code, experiments, caveats, and links between lessons.
-- `content.json` now contains structured metadata and prerequisites for the LLM path.
+- `content.json` contains structured metadata and prerequisites for the LLM path.
 - Shared article CSS supports code blocks, readable serif body copy, pull quotes, diagrams, lesson boxes, and next-story navigation.
 - Onboarding/localStorage behavior remains compatible with the redesigned homepage.
+- The four original seed articles were rewritten into the story-driven standard: `articles/algorithms.html`, `articles/neural-networks.html`, `articles/llm-next-word.html`, and `articles/attention.html`.
 
 ## LLM curriculum rule
 The LLM series is a flagship curriculum, not ten disconnected blog posts. The intended progression is:

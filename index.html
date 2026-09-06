@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Lio — Learn It Out. Technology explained so you can actually understand it.">
+  <title>Lio — Learn It Out</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav wrap">
+    <a class="brand" href="index.html"><span class="logo">L</span><span>Lio</span></a>
+    <nav><a href="#learn">Learn</a><a href="#topics">Topics</a><a href="#about">About</a></nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div class="eyebrow">LEARN IT OUT</div>
+      <h1>Technology is easier<br><em>when it clicks.</em></h1>
+      <p class="hero-copy">Clear ideas. Real examples. New technology without the “you should already know this” feeling.</p>
+      <div class="hero-actions">
+        <button class="primary" id="startBtn">Build my learning path <span>→</span></button>
+        <a class="quiet" href="articles/neural-networks.html">Just explore</a>
+      </div>
+      <div class="signal"><span></span> Built for curious beginners — and people who want to go deeper.</div>
+    </section>
+
+    <section class="path wrap" id="learn">
+      <div class="section-head"><div><span class="kicker">A DIFFERENT KIND OF FEED</span><h2>Don't just read. <span>connect.</span></h2></div><p>Lio remembers what you care about in this browser and uses it to suggest a useful next step.</p></div>
+      <div class="cards">
+        <article class="card featured"><div class="card-top"><span class="tag">START HERE</span><span>7 min</span></div><h3>Neural Networks, Without the Mystery</h3><p>What a neural network actually does, explained from zero — then gradually taken apart.</p><a href="articles/neural-networks.html">Read the idea →</a></article>
+        <article class="card"><div class="card-top"><span class="tag">CONCEPT</span><span>6 min</span></div><h3>What Is an Algorithm?</h3><p>The surprisingly simple idea behind search, recommendations, maps, and AI.</p><a href="articles/algorithms.html">Learn it →</a></article>
+        <article class="card"><div class="card-top"><span class="tag">AI</span><span>8 min</span></div><h3>Why ChatGPT Can Predict Words</h3><p>A friendly path from next-word prediction to language models.</p><a href="articles/llm-next-word.html">Learn it →</a></article>
+      </div>
+    </section>
+
+    <section class="topics wrap" id="topics">
+      <div class="section-head"><div><span class="kicker">EXPLORE</span><h2>Pick a rabbit hole.</h2></div></div>
+      <div class="topic-grid">
+        <button data-topic="ai">Artificial Intelligence <b>→</b></button>
+        <button data-topic="programming">Programming <b>→</b></button>
+        <button data-topic="ml">Machine Learning <b>→</b></button>
+        <button data-topic="quantum">Quantum Computing <b>→</b></button>
+        <button data-topic="cybersecurity">Cybersecurity <b>→</b></button>
+        <button data-topic="future">What’s next? <b>→</b></button>
+      </div>
+    </section>
+
+    <section class="about wrap" id="about">
+      <div class="about-box"><span class="kicker">THE LIO IDEA</span><h2>Less “content”.<br>More <em>understanding.</em></h2><p>A huge library is only useful if you can find the right thing at the right time. Lio is being built around that idea: learn something, test it, connect it to what you already know, then discover the next useful concept.</p></div>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="onboarding" aria-hidden="true"><div class="modal-card"><button class="close" id="closeBtn">×</button><span class="kicker">QUICK START</span><h2>What do you want to learn?</h2><p>Pick a few. You can change these later.</p><div class="choices" id="choices"><button data-value="ai">AI</button><button data-value="ml">Machine Learning</button><button data-value="programming">Programming</button><button data-value="robotics">Robotics</button><button data-value="cybersecurity">Cybersecurity</button><button data-value="quantum">Quantum</button></div><button class="primary full" id="saveBtn">Create my path →</button></div></div>
+
+  <footer class="wrap footer"><span>© 2026 Lio — Learn It Out</span><span>Built to make hard things click.</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

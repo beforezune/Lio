@@ -1,1 +1,81 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Why ChatGPT Can Predict Words — Lio</title><link rel="stylesheet" href="../styles.css"></head><body><header class="nav wrap"><a class="brand" href="../index.html"><span class="logo">L</span><span>Lio</span></a><nav><a href="../index.html#learn">Learn</a><a href="../index.html#topics">Topics</a></nav></header><main class="wrap" style="max-width:820px"><article style="padding:80px 0"><span class="kicker">AI · BEGINNER · 8 MIN</span><h1 style="font-size:clamp(44px,7vw,76px);margin-top:18px">Why ChatGPT Can Predict Words</h1><p class="hero-copy">The “next word” idea sounds simple. The interesting part is what a large neural network can learn while getting very, very good at it.</p><hr><h2>Start with a sentence</h2><p>Give a model: “The capital of France is …” A useful language model should assign a high probability to “Paris”. During training, it sees enormous numbers of text examples and learns patterns that help it predict what comes next.</p><h2>It isn't a lookup table</h2><p>A modern language model doesn't simply store a phrase and retrieve the answer. Its parameters encode statistical patterns learned from training. Context changes the probabilities: “bank” after “river” behaves differently from “bank” after “money”.</p><div class="card" style="margin:30px 0;background:var(--accent)"><h3>Prediction is the training game</h3><p>Context → model → probability distribution → predicted token. Compare with the real next token → calculate error → update parameters → repeat.</p></div><h2>Where transformers enter</h2><p>Transformers provide a powerful architecture for processing relationships between tokens. Their attention mechanism helps the model decide which parts of the context are useful when constructing its internal representation.</p><h2>One important correction</h2><p>“It predicts the next token” does not mean “it only knows how to autocomplete.” The behavior we see emerges from scale, architecture, training data, optimization, and post-training. Next-token prediction is the training objective—not a complete description of everything the finished system can do.</p><h2>You can now</h2><ul><li>Explain the basic next-token prediction objective.</li><li>Explain why context changes a token's probability.</li><li>Place transformers and attention in the larger picture.</li></ul><div class="about-box" style="margin-top:40px"><span class="kicker">NEXT</span><h2>Attention is the trick.</h2><p>Next: the mechanism that lets a transformer weigh different parts of context.</p><a style="color:white" href="attention.html">Next: Attention Explained →</a></div></article></main><footer class="wrap footer"><span>Lio — Learn It Out</span><span>Learn something. Connect it. Build on it.</span></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A human-first explanation of next-token prediction, context, transformers, and why autocomplete becomes surprisingly capable."><title>Why ChatGPT Can Predict the Next Word — Lio</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+<header class="site-header"><div class="nav wrap"><a class="brand" href="../index.html"><span class="brand-mark">L</span><span>Lio</span></a><nav><a href="../index.html#stories">Stories</a><a href="../index.html#topics">Topics</a><a href="../index.html#about">About</a></nav><a class="nav-cta" href="../index.html">Back to Lio <span>→</span></a></div></header>
+<main class="wrap"><article class="article">
+<span class="kicker">AI · BEGINNER · 11 MIN READ</span>
+<h1>ChatGPT looks like it knows what you mean. Start with <em>the next word.</em></h1>
+<p class="dek">The first useful idea behind a language model is almost embarrassingly simple: look at the text so far and predict what should come next.</p>
+<div class="byline">LIO · LEARN IT OUT &nbsp; / &nbsp; FROM A SIMPLE OBJECTIVE TO A STRANGE CAPABILITY</div>
+
+<p>Try finishing this sentence:</p>
+<p><strong>“The capital of France is …”</strong></p>
+<p>Paris arrives quickly.</p>
+<p>Now try:</p>
+<p><strong>“I left my keys on the …”</strong></p>
+<p>Table. Desk. Counter. Maybe sofa.</p>
+<p>We do this kind of prediction constantly, without noticing. Language is full of patterns, and our brains use those patterns to anticipate what comes next.</p>
+<p>What if a machine did the same thing — at enormous scale?</p>
+
+<h2>The deceptively small game</h2>
+<p>Imagine a training example:</p>
+<p><strong>“The cat sat on the ___.”</strong></p>
+<p>The correct next token might be <em>mat</em>.</p>
+<p>The model produces probabilities for many possible tokens. Maybe <em>mat</em> gets 0.42, <em>floor</em> gets 0.08, and <em>table</em> gets 0.03.</p>
+<p>Then the training system compares the prediction with the actual next token and calculates an error. The model's parameters are adjusted so that, next time, the probability distribution is a little better.</p>
+<div class="pullquote">The trick is not that predicting one word is impressive. The trick is what a model has to learn in order to become extremely good at doing it.</div>
+
+<h2>To predict well, you have to notice relationships</h2>
+<p>Consider the word <strong>bank</strong>.</p>
+<p>“I sat beside the river bank.”</p>
+<p>“I deposited money at the bank.”</p>
+<p>The letters are identical. The useful meaning is not.</p>
+<p>A capable language model therefore cannot treat every word as an isolated label. It needs representations that change with context.</p>
+<p>The same problem gets much harder with longer passages.</p>
+<p>“Maya put the glass on the table because <em>it</em> was unstable.”</p>
+<p>What does <em>it</em> refer to? The glass? The table? The sentence does not explicitly label the answer.</p>
+<p>Prediction becomes a pressure to learn relationships: which earlier pieces of text help explain the next piece?</p>
+
+<h2>This is where transformers changed the game</h2>
+<p>A transformer is an architecture designed to process sequences while allowing information from different positions to interact efficiently.</p>
+<p>The mechanism people usually hear about is <strong>attention</strong>.</p>
+<p>For a rough mental model, imagine every token asking:</p>
+<p><em>“Which other tokens should I pay attention to right now?”</em></p>
+<p>In a sentence about a glass and a table, the representation built for one token can use information from other relevant tokens. The model learns which relationships tend to matter because those relationships help it predict the training data.</p>
+<p>Attention is not a little spotlight controlled by a conscious mind. It is a learned mathematical operation. But the routing metaphor is useful because it tells us what the mechanism is doing: <strong>combining information from different parts of the context with different weights.</strong></p>
+
+<h2>Why “just autocomplete” is misleading</h2>
+<p>There is a common reaction to the next-token explanation:</p>
+<p><em>“So it is just autocomplete.”</em></p>
+<p>Technically, the training objective really is next-token prediction. But “just autocomplete” hides the interesting part.</p>
+<p>If you want to predict the next token across books, conversations, documentation, programs, essays, and explanations, you need internal representations that capture many regularities in those sources.</p>
+<p>You may need to track syntax. You may need facts that are repeatedly expressed in text. You may need to distinguish a question from an answer. In code, you need patterns about syntax and program structure. In a long conversation, earlier context can change what a later sentence means.</p>
+<p>None of that requires the model to have a tiny human sitting inside it deciding what the sentence means. It is the result of a huge learned function whose parameters have been adjusted to make predictions more accurate.</p>
+
+<h2>The surprising leap comes from scale</h2>
+<p>One small model trained on a small collection of text will not suddenly become a useful assistant.</p>
+<p>Modern language models operate at a much larger scale: enormous datasets, many parameters, substantial compute, and sophisticated optimization and post-training procedures.</p>
+<p>Scale matters because the model has room to represent more complicated patterns. Training matters because those parameters need to be shaped by an objective. Architecture matters because the system needs an effective way to transform and route information.</p>
+<p>And post-training matters because a raw next-token predictor is not automatically a good conversational assistant.</p>
+
+<h2>There is another important distinction</h2>
+<p>A model assigning a high probability to a sentence does not make that sentence true.</p>
+<p>The model is trained to produce useful continuations of data. It is not, by default, a database with a built-in truth detector.</p>
+<p>That is why a language model can produce a fluent explanation containing a factual error. Fluency and truth are different properties.</p>
+<p>This is one of the most important habits to develop when using AI: <strong>treat confidence in the writing and confidence in the facts as separate questions.</strong></p>
+
+<h2>The mental model to keep</h2>
+<div class="lesson"><strong>Context</strong><p>The model receives tokens representing what has been written so far.</p><strong>Representation</strong><p>The transformer repeatedly transforms those tokens into richer internal representations.</p><strong>Prediction</strong><p>The model produces a probability distribution over possible next tokens.</p><strong>Generation</strong><p>A token is selected, appended to the context, and the process runs again.</p></div>
+<p>That last step is easy to overlook.</p>
+<p>The model does not write the entire answer in one mysterious leap. Generation proceeds token by token. Each new token becomes part of the context used to predict the next one.</p>
+<p>A surprisingly sophisticated paragraph can therefore emerge from repeatedly applying a relatively simple operation to an increasingly rich internal state.</p>
+
+<h2>You now have the useful version of the story</h2>
+<ul><li>Next-token prediction is the core training objective behind modern language models.</li><li>Good prediction requires learning useful patterns and relationships in context.</li><li>Transformers use attention to combine information from different parts of a sequence.</li><li>Scale, architecture, training data, optimization, and post-training all shape the final behavior.</li><li>Fluent output is not the same thing as guaranteed truth.</li></ul>
+
+<div class="next lesson"><span class="kicker">NEXT STORY</span><h3>Attention is the routing idea underneath it.</h3><p>Now that you know why context matters, follow the mechanism that lets a transformer decide which pieces of context should influence each other.</p><a href="attention.html">Read: Attention, Explained →</a></div>
+</article></main>
+<footer class="footer wrap"><span>Lio — Learn It Out</span><span>Technology, explained by humans.</span></footer>
+<script src="../app.js"></script>
+</body></html>

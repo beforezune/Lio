@@ -1,33 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Build a Transformer Block From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 06 · TRANSFORMER BLOCK · 20 MIN READ</p><h1>Now assemble the machine: attention + MLP + residuals + normalization.</h1><p class="dek">A GPT is not one giant mysterious operation. It is a stack of repeated blocks built from a small set of ordinary neural-network components.</p><div class="byline">Lio Learning Path · Intermediate</div><h2>The modern decoder block</h2><p>A common GPT-style pre-norm block can be written conceptually as:</p><pre><code>x = x + Attention(LayerNorm(x))
-x = x + MLP(LayerNorm(x))</code></pre><p>The exact ordering varies across model families, but this pattern is an excellent educational baseline.</p><h2>Layer normalization</h2><p>LayerNorm normalizes features within each token representation, then learns a scale and bias. It helps keep activations in a manageable range as many blocks are composed.</p><pre><code>self.ln1 = nn.LayerNorm(n_embd)
-self.ln2 = nn.LayerNorm(n_embd)</n
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Build a Transformer Block From Scratch | Lio</title><link rel="stylesheet" href="../styles.css"></head><body><div class="reading-progress"><span></span></div><main class="article wrap"><p class="kicker">LLM FROM SCRATCH · 06 · TRANSFORMER BLOCK · 24 MIN READ</p><h1>The Transformer block is a small machine repeated many times.</h1><p class="dek">Attention routes information between positions. The MLP transforms each position. Residual connections preserve a stable stream, and normalization keeps the computation well behaved.</p><div class="byline">Lio Learning Path · Intermediate</div><div class="article-intro"><strong>Learning goal</strong><p>Assemble multi-head attention, an MLP, LayerNorm and residual connections into a GPT-style block, then stack blocks into the core of a language model.</p></div><h2>Think of the hidden state as a stream</h2><p>At the start of the Transformer, each position has a vector of width <code>C</code>. We will call the whole tensor <code>x</code>, with shape <code>(B,T,C)</code>.</p><p>A block does not need to replace that representation with a completely new one. Instead, it can add useful updates to the existing stream.</p><pre><code>x = x + attention_update
+x = x + mlp_update</code></pre><p>This residual structure is one of the most important engineering ideas in deep Transformers.</p><h2>LayerNorm: stabilize each position</h2><p>Layer normalization normalizes features within each token representation and applies learned scale and bias. In a pre-norm block, normalization happens before the attention or MLP sublayer.</p><pre><code>self.ln1 = nn.LayerNorm(n_embd)
+self.ln2 = nn.LayerNorm(n_embd)
+
 x = x + self.attn(self.ln1(x))
-x = x + self.mlp(self.ln2(x))</code></pre><h2>The feed-forward network</h2><p>The MLP works independently on each position after attention has mixed information. A simple version expands the channel dimension, applies a nonlinearity, then projects back.</p><pre><code>self.mlp = nn.Sequential(
-    nn.Linear(n_embd, 4 * n_embd),
+x = x + self.mlp(self.ln2(x))</code></pre><p>The exact normalization placement differs between architectures. Our goal is not to claim one universal Transformer formula; it is to build a clean GPT-style baseline.</p><h2>Attention handles communication</h2><p>Self-attention allows one position to read information from earlier positions. After multi-head attention, each token has a richer contextual representation.</p><pre><code>x:                 (B,T,C)
+ln1(x):            (B,T,C)
+attention output:  (B,T,C)
+residual result:   (B,T,C)</code></pre><p>The fact that the shape returns to <code>(B,T,C)</code> is what makes the residual addition possible.</p><h2>The MLP handles transformation</h2><p>After attention has mixed information, the model applies a feed-forward network independently at each position. A common educational version expands the width by four:</p><pre><code>self.mlp = nn.Sequential(
+    nn.Linear(C, 4*C),
     nn.GELU(),
-    nn.Linear(4 * n_embd, n_embd),
+    nn.Linear(4*C, C),
     nn.Dropout(dropout),
-)</code></pre><p>Attention answers a routing question: “which information should this token read?” The MLP performs a learned transformation on the resulting representation. The two operations complement each other.</p><h2>Residual connections</h2><p>A residual connection adds the block's update to the existing representation instead of replacing it. This creates a direct path through the network and makes optimization of deep stacks much easier.</p><pre><code>x = x + update</code></pre><p>Think of each block as writing an additional correction into a shared stream of information. It does not need to rebuild the entire representation from zero.</p><h2>One complete block</h2><pre><code>class Block(nn.Module):
+)</code></pre><p>For an input of shape <code>(B,T,C)</code>, the first linear layer produces <code>(B,T,4C)</code>, GELU preserves that shape, and the second layer returns to <code>(B,T,C)</code>.</p><p>Notice the division of labor. Attention mixes information across positions. The MLP does not move information between tokens; it transforms the features at each position.</p><h2>Why residual connections help</h2><p>Imagine stacking dozens of transformations where every layer must rebuild the entire representation. Optimization would have a difficult job. A residual block instead learns an update:</p><pre><code>new_x = old_x + learned_update</code></pre><p>The identity path gives gradients a direct route through the network and lets layers specialize in corrections rather than full reconstruction.</p><h2>One complete block</h2><pre><code>class Block(nn.Module):
     def __init__(self, n_embd, n_head, block_size, dropout=0.0):
         super().__init__()
         self.ln1 = nn.LayerNorm(n_embd)
-        self.attn = MultiHeadAttention(n_embd, n_head, block_size, dropout)
+        self.attn = MultiHeadAttention(
+            n_embd, n_head, block_size, dropout
+        )
         self.ln2 = nn.LayerNorm(n_embd)
         self.mlp = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),
+            nn.Linear(n_embd, 4*n_embd),
             nn.GELU(),
-            nn.Linear(4 * n_embd, n_embd),
+            nn.Linear(4*n_embd, n_embd),
             nn.Dropout(dropout),
         )
 
     def forward(self, x):
         x = x + self.attn(self.ln1(x))
         x = x + self.mlp(self.ln2(x))
-        return x</code></pre><h2>Stack the blocks</h2><pre><code>self.blocks = nn.ModuleList([
+        return x</code></pre><h2>Stack depth</h2><pre><code>self.blocks = nn.ModuleList([
     Block(n_embd, n_head, block_size, dropout)
     for _ in range(n_layer)
 ])
 
 for block in self.blocks:
-    x = block(x)</code></pre><p>Depth now becomes a simple hyperparameter. More blocks give the network more transformation capacity, but also increase memory and compute requirements.</p><div class="lesson"><strong>Shape checkpoint</strong><p>Every block should preserve the main shape: <code>(B,T,C) → (B,T,C)</code>. If your attention or MLP changes C accidentally, the residual addition will expose the bug.</p></div><h2>Final normalization and the language-model head</h2><pre><code>x = self.ln_f(x)
-logits = self.lm_head(x)</code></pre><p>If vocabulary size is V, logits have shape <code>(B,T,V)</code>. For each position, the model produces one score for every possible next token.</p><div class="pullquote">The Transformer stack repeatedly refines a sequence representation. Attention mixes information; the MLP transforms it; residuals preserve a stable information highway.</div><h2>Next</h2><p>We have a model. Now it needs to learn. The next lesson follows one batch through forward pass, loss, gradients and an optimizer update.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-training.html">Train the language model: loss, backpropagation and AdamW</a></p></div></main></body></html>
+    x = block(x)</code></pre><p>Depth is now a parameter. If <code>n_layer=6</code>, the representation passes through six copies of the same architecture, each with its own learned parameters.</p><h2>What each layer can change</h2><p>The first blocks may learn relatively local transformations. Deeper blocks can build on representations already enriched by earlier blocks. We should be cautious about assigning clean semantic roles to individual layers, though: the computation is distributed and the learned behavior depends on the training data.</p><h2>The language-model head</h2><p>After the final block, normalize once more and project from model width <code>C</code> to vocabulary size <code>V</code>:</p><pre><code>x = self.ln_f(x)
+logits = self.lm_head(x)
+
+# x      : (B,T,C)
+# logits : (B,T,V)</code></pre><p>At each position, the final vector becomes one score for every possible next token.</p><p>Those scores are called logits because they are not probabilities yet. The training loss can consume them directly; softmax is conceptually useful for understanding the distribution and is applied explicitly when sampling.</p><h2>The full forward path</h2><pre><code>idx                 # (B,T)
+  ↓
+token + position    # (B,T,C)
+  ↓
+Block × N            # (B,T,C)
+  ↓
+final LayerNorm      # (B,T,C)
+  ↓
+lm_head              # (B,T,V)</code></pre><p>That is already most of the architecture.</p><h2>Common implementation bugs</h2><h3>Residual width mismatch</h3><p>If attention returns <code>(B,T,D)</code> while the residual is <code>(B,T,C)</code>, addition fails unless <code>D=C</code>. Multi-head attention therefore concatenates heads back to model width.</p><h3>Future-token leakage</h3><p>Every attention block must remain causal. A single missing mask changes the training problem.</p><h3>Position length mismatch</h3><p>If the input contains more positions than the positional table supports, the lookup fails. This is why context length is an architectural constraint.</p><h3>Train/eval confusion</h3><p>Dropout behaves differently during training and evaluation. Always switch modes explicitly when measuring the model.</p><div class="lesson"><strong>Shape checkpoint</strong><p>A well-designed block preserves <code>(B,T,C) → (B,T,C)</code>. The attention sublayer temporarily uses head dimensions, the MLP temporarily expands to <code>4C</code>, but both return to width <code>C</code> before residual addition.</p></div><div class="pullquote">A Transformer becomes less mysterious when you stop treating it as one invention and start treating it as a repeated composition of ordinary operations.</div><h2>Next: make the machine learn</h2><p>We have built the forward computation. Now we need an objective that tells it what good behavior means and an optimizer that changes its parameters.</p><div class="lesson next"><strong>Next lesson →</strong><p><a href="llm-training.html">Training: loss, backpropagation and AdamW</a></p></div></main><script>const bar=document.querySelector('.reading-progress span');addEventListener('scroll',()=>{const h=document.documentElement;bar.style.width=(scrollY/(h.scrollHeight-innerHeight)*100)+'%'});</script></body></html>

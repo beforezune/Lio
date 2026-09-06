@@ -1,0 +1,6 @@
+[
+  {"id":"algorithms","title":"What Is an Algorithm?","type":"concept","topics":["programming","computer-science"],"difficulty":"beginner","concepts_taught":["algorithm","input-output","efficiency"],"prerequisites":[],"next":["neural-networks"],"estimated_time":6,"learning_value":9,"practical_value":8},
+  {"id":"neural-networks","title":"Neural Networks, Without the Mystery","type":"explainer","topics":["ai","ml"],"difficulty":"beginner","concepts_taught":["neural-networks","weights","loss","training"],"prerequisites":["algorithms"],"next":["attention"],"estimated_time":7,"learning_value":10,"practical_value":8},
+  {"id":"llm-next-word","title":"Why ChatGPT Can Predict Words","type":"explainer","topics":["ai","llms"],"difficulty":"beginner","concepts_taught":["tokens","next-token-prediction","language-models"],"prerequisites":["neural-networks"],"next":["attention"],"estimated_time":8,"learning_value":10,"practical_value":7},
+  {"id":"attention","title":"Attention, Without the Heavy Math","type":"concept","topics":["ai","transformers"],"difficulty":"intermediate","concepts_taught":["attention","query","key","value"],"prerequisites":["neural-networks"],"next":["llm-next-word"],"estimated_time":8,"learning_value":10,"practical_value":8}
+]
